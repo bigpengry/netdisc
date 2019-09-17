@@ -1,9 +1,8 @@
 package handler
 
 import (
-	dblayer "filestore-server/db"
-	"filestore-server/handler"
-	"filestore-server/util"
+	dblayer "github.com/bigpengry/netdisc/filestore-server/db"
+	"github.com/bigpengry/netdisc/filestore-server/util"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -48,6 +47,12 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 // SignInHandler : 处理用户登录请求
 func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
+		// data, err := ioutil.ReadFile("./static/view/signin.html")
+		// if err != nil {
+		// 	w.WriteHeader(http.StatusInternalServerError)
+		// 	return
+		// }
+		// w.Write(data)
 		http.Redirect(w, r, "/static/view/signin.html", http.StatusFound)
 		return
 	}
@@ -69,8 +74,50 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//3.登录成功后重定向到首页
-	http.HandleFunc("/user/signup", handler.SignUpHandler)
+	//w.Write([]byte("http://" + r.Host + "/static/view/home.html"))
+	resp := util.RespMsg{
+		Code: 0,
+		Msg:  "OK",
+		Data: struct {
+			Location string
+			Username string
+			Token    string
+		}{
+			Location: "http://" + r.Host + "/static/view/home.html",
+			Username: username,
+			Token:    token,
+		},
+	}
+	w.Write(resp.JSONBytes())
 }
+
+// QuerUserInfoHandler : 查寻用户信息接口
+func QuerUserInfoHandler(w http.ResponseWriter,r *http.Request){
+	//1.解析请求参数
+	fmt.Println(1)
+	r.ParseForm()
+	username:=r.Form.Get("username")
+	token:=r.Form.Get("username")
+	//2.验证token是否有效
+	if !IsTokenVaild(token){
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+	//3.查询用户信息
+	user,err:=dblayer.GetUserInfo(username)
+	if err!=nil{
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+	resp:=util.RespMsg{
+		Code:0,
+		Msg:"OK",
+		Data:*user,
+	}
+	w.Write(resp.JSONBytes())
+
+}
+
 
 // GenToken : 生成访问凭证
 func GenToken(username string) string {
@@ -79,4 +126,12 @@ func GenToken(username string) string {
 	tokenPrefix := util.MD5([]byte(username + ts + token_salt))
 
 	return tokenPrefix + ts[:8]
+}
+
+// IsTokenVaild : 检验token是否有效
+func IsTokenVaild(token string)bool{
+	//1.检验token是否超时
+	//2.查询token是否存在
+	//3.比较token是否一致
+	return true
 }

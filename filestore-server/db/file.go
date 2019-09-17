@@ -2,7 +2,7 @@ package db
 
 import (
 	"database/sql"
-	mydb "filestore-server/db/mysql"
+	mydb "github.com/bigpengry/netdisc/filestore-server/db/mysql"
 	"fmt"
 )
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	mydb "filestore-server/db"
+	mydb "github.com/bigpengry/netdisc/filestore-server/db"
 )
 
 // FileMeta : 文件元信息结构

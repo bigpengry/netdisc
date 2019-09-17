@@ -2,8 +2,8 @@ package handler
 
 import (
 	"encoding/json"
-	"filestore-server/meta"
-	"filestore-server/util"
+	"github.com/bigpengry/netdisc/filestore-server/meta"
+	"github.com/bigpengry/netdisc/filestore-server/util"
 	"fmt"
 	"io"
 	"io/ioutil"

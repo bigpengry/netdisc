@@ -1,12 +1,21 @@
 package db
 
 import (
-	mydb "filestore-server/db/mysql"
+	mydb "github.com/bigpengry/netdisc/filestore-server/db/mysql"
 	"fmt"
 )
 
+// User : 用户信息
+type User struct{
+	Username string
+	Email string
+	Phone string
+	SignUpAt string
+	Status int
+}
+
 // UserSignUp : 通过用户名及密码完成user表的注册操作
-func UserSignUp(username, password string) bool {
+func UserSignUp(username, encPwd string) bool {
 	stmt, err := mydb.DBConn().Prepare(
 		"insert ignore into tbl_user(user_name,user_pwd)values(?,?)")
 	defer stmt.Close()
@@ -14,7 +23,7 @@ func UserSignUp(username, password string) bool {
 		fmt.Println("Failed to insert,err:", err.Error())
 		return false
 	}
-	ret, err := stmt.Exec(username, password)
+	ret, err := stmt.Exec(username, encPwd)
 	if err != nil {
 		fmt.Println("Failed to insert,err:", err.Error())
 		return false
@@ -25,7 +34,7 @@ func UserSignUp(username, password string) bool {
 	return true
 }
 
-// UserSignIn :
+// UserSignIn : 用户登录操作
 func UserSignIn(username, encPwd string) bool {
 	stmt, err := mydb.DBConn().Prepare(
 		"select * from tbl_user where user_name=? limit 1")
@@ -50,10 +59,29 @@ func UserSignIn(username, encPwd string) bool {
 	return false
 }
 
+// GetUserInfo : 获取用户信息
+func GetUserInfo(username string)(*User,error){
+	user:=new(User)
+	stmt,err:=mydb.DBConn().Prepare(
+		"select user_name,signup_at from tbl_user where user_name=? limit 1")
+	defer stmt.Close()
+	if err!=nil{
+		fmt.Println(err.Error())
+		return user,err
+	}
+	
+	stmt.QueryRow(username).Scan(user.Username,user.SignUpAt)
+	if err!=nil{
+		return user,err
+	}
+	
+	return user,nil
+}
+
 // UpdateToken : 刷新用户登陆的token
 func UpdateToken(username, token string) bool {
 	stmt, err := mydb.DBConn().Prepare(
-		"replace into tbl_user_token('user_name','user_token')value(?,?)")
+		"replace into tbl_user_token(`user_name`,`user_token`)value(?,?)")
 	defer stmt.Close()
 	if err != nil {
 		fmt.Println(err.Error())

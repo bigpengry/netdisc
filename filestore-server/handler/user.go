@@ -94,26 +94,21 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 // QuerUserInfoHandler : 查寻用户信息接口
 func QuerUserInfoHandler(w http.ResponseWriter,r *http.Request){
 	//1.解析请求参数
-	fmt.Println(1)
 	r.ParseForm()
 	username:=r.Form.Get("username")
-	token:=r.Form.Get("username")
-	//2.验证token是否有效
-	if !IsTokenVaild(token){
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
+	//token:=r.Form.Get("username")
+	// //2.验证token是否有效
+	// if !IsTokenVaild(token){
+	// 	w.WriteHeader(http.StatusForbidden)
+	// 	return
+	// }
 	//3.查询用户信息
 	user,err:=dblayer.GetUserInfo(username)
 	if err!=nil{
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
-	resp:=util.RespMsg{
-		Code:0,
-		Msg:"OK",
-		Data:*user,
-	}
+	resp:=util.NewRespMsg(0,"OK",user)
 	w.Write(resp.JSONBytes())
 
 }
@@ -128,10 +123,3 @@ func GenToken(username string) string {
 	return tokenPrefix + ts[:8]
 }
 
-// IsTokenVaild : 检验token是否有效
-func IsTokenVaild(token string)bool{
-	//1.检验token是否超时
-	//2.查询token是否存在
-	//3.比较token是否一致
-	return true
-}

@@ -60,8 +60,8 @@ func UserSignIn(username, encPwd string) bool {
 }
 
 // GetUserInfo : 获取用户信息
-func GetUserInfo(username string)(*User,error){
-	user:=new(User)
+func GetUserInfo(username string)(User,error){
+	user:=User{}
 	stmt,err:=mydb.DBConn().Prepare(
 		"select user_name,signup_at from tbl_user where user_name=? limit 1")
 	defer stmt.Close()
@@ -69,8 +69,8 @@ func GetUserInfo(username string)(*User,error){
 		fmt.Println(err.Error())
 		return user,err
 	}
-	
-	stmt.QueryRow(username).Scan(user.Username,user.SignUpAt)
+	stmt.QueryRow(username).Scan(&user.Username,&user.SignUpAt)
+	fmt.Println(user)
 	if err!=nil{
 		return user,err
 	}

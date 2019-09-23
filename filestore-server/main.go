@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/bigpengry/netdisc/filestore-server/handler"
+	"netdisc/filestore-server/handler"
 	"fmt"
 	"net/http"
 )

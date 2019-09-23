@@ -2,7 +2,7 @@ package handler
 
 import(
 	"net/http"
-	"github.com/bigpengry/netdisc/filestore-server/util"
+	"netdisc/filestore-server/util"
 )
 
 // HTTPInterceptor : http请求拦截器

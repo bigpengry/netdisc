@@ -1,8 +1,8 @@
 package handler
 
 import (
-	dblayer "github.com/bigpengry/netdisc/filestore-server/db"
-	"github.com/bigpengry/netdisc/filestore-server/util"
+	dblayer "netdisc/filestore-server/db"
+	"netdisc/filestore-server/util"
 	"fmt"
 	"io/ioutil"
 	"net/http"

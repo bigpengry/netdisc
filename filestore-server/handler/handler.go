@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"netdisc/filestore-server/meta"
 	"netdisc/filestore-server/util"
+	dblayer"netdisc/filestore-server/db"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -53,6 +54,14 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		fileMeta.FileSha1 = util.FileSha1(newFile)
 		//meta.UpdateFileMeta(fileMeta)
 		_ = meta.UpdateFileMetaDB(fileMeta)
+		r.ParseForm()
+		username:=r.Form.Get("username")
+		//更新文件记录表
+		suc:=dblayer.UploadUserFileFinished(username,fileMeta.FileSha1,fileMeta.FileName,fileMeta.FileSize)
+		if !suc{
+			w.Write([]byte("Upload Failed"))
+			return
+		}
 		http.Redirect(w, r, "/file/upload/suc", http.StatusFound)
 	}
 }
@@ -83,10 +92,14 @@ func GetFileMetaHandler(w http.ResponseWriter, r *http.Request) {
 // QueryFileHandler : 文件查询接口
 func QueryFileHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-
+	username:=r.Form.Get("username")
 	limitCnt, _ := strconv.Atoi(r.Form.Get("limit"))
-	fileMetas := meta.GetLastFileMetas(limitCnt)
-	data, err := json.Marshal(fileMetas)
+	//fileMetas := meta.GetLastFileMetas(limitCnt)
+	userFiles,err:=dblayer.QueryUserFileMetas(username,limitCnt)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	data, err := json.Marshal(userFiles)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
